@@ -58,6 +58,20 @@ int main(int argc,char** argv) {
     check(expired.snapshot()["processes"][0]["risk"]==0,"inactive process risk expiry");
     Event exit; exit.sequence=4; exit.pid=901; exit.type="process_exit"; exit.time_ms=1000000; expired.consume(exit);
     check(expired.snapshot()["processes"][1]["active"]==false,"process exit");
+    Engine parents(rules);
+    parents.consume(start(1,1,"winword.exe")); parents.consume(start(2,2,"child.exe","",1));
+    parents.consume(start(3,1,"notepad.exe"));
+    check(parents.snapshot()["processes"][1]["parent_id"]=="1:1","parent generation survives PID reuse");
+    const std::vector<std::pair<Event,const char*>> positive{
+        {start(1,1,"mshta.exe","mshta https://example.invalid/demo"),"RS-003"},
+        {start(1,1,"rundll32.exe","rundll32 javascript:demo"),"RS-004"},
+        {start(1,1,"certutil.exe","certutil -urlcache https://example.invalid/demo"),"RS-005"},
+        {start(1,1,"schtasks.exe","schtasks /create"),"RS-006"},
+        {start(1,1,"vssadmin.exe","vssadmin delete shadows"),"RS-007"}
+    };
+    for(const auto& [event,rule]:positive) { Engine test(rules); check(has(test.consume(event),rule),"rule positive"); }
+    bad_rules=rules; bad_rules["rules"][0]["severity"]="typo"; rejects([&]{Engine invalid(bad_rules);},"invalid severity");
+    bad_rules=rules; bad_rules["rules"][0]["score"]=1.5; rejects([&]{Engine invalid(bad_rules);},"fractional score");
     std::cout<<checks<<" C++ detection and state checks passed\n"; return 0;
  } catch(const std::exception& e) { std::cerr<<"Engine test: "<<e.what()<<'\n'; return 1; }
 }

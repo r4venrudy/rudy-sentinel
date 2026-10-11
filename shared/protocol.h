@@ -1,6 +1,10 @@
 #ifndef RUDY_SENTINEL_PROTOCOL_H
 #define RUDY_SENTINEL_PROTOCOL_H
-#include <stdint.h>
+/* Windows x64 and the tested portable targets use these exact widths.
+   Keep user-mode CRT headers out of the kernel translation units. */
+typedef unsigned short RS_U16;
+typedef unsigned int RS_U32;
+typedef unsigned long long RS_U64;
 
 #define RS_VERSION 1u
 #define RS_CAPACITY 1024u
@@ -20,18 +24,18 @@
 
 #pragma pack(push, 8)
 typedef struct RS_EVENT {
-    uint32_t Size, Version, Type, Flags;
-    uint64_t Sequence, Time100ns;
-    uint32_t ProcessId, ParentId, TargetId, AccessMask;
-    uint16_t Image[RS_PATH_CHARS];
-    uint16_t Command[RS_COMMAND_CHARS];
+    RS_U32 Size, Version, Type, Flags;
+    RS_U64 Sequence, Time100ns;
+    RS_U32 ProcessId, ParentId, TargetId, AccessMask;
+    RS_U16 Image[RS_PATH_CHARS];
+    RS_U16 Command[RS_COMMAND_CHARS];
 } RS_EVENT;
 
-typedef struct RS_REQUEST { uint32_t Size, Version, MaxEvents, Reserved; } RS_REQUEST;
+typedef struct RS_REQUEST { RS_U32 Size, Version, MaxEvents, Reserved; } RS_REQUEST;
 typedef struct RS_BATCH {
-    uint32_t Size, Version, Count, Reserved;
-    uint64_t Produced, Dropped, AllocationFailures;
-    uint32_t Pending, Capacity;
+    RS_U32 Size, Version, Count, Reserved;
+    RS_U64 Produced, Dropped, AllocationFailures;
+    RS_U32 Pending, Capacity;
 } RS_BATCH;
 #pragma pack(pop)
 #endif

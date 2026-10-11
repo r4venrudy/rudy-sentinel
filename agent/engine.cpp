@@ -53,8 +53,10 @@ Engine::Engine(Json config, std::size_t capacity) : config_(std::move(config)), 
         auto id = rule.at("id").get<std::string>();
         if (id.empty() || !ids.insert(id).second || !rule.at("title").is_string() ||
             !rule.at("mitre").is_string() || !rule.at("severity").is_string()) throw std::runtime_error("invalid or duplicate rule id");
+        if (!rule.at("score").is_number_integer()) throw std::runtime_error("rule score must be an integer");
         int score = rule.at("score").get<int>();
         if (score < 1 || score > 100) throw std::runtime_error("invalid rule score");
+        if (rule["severity"]!="medium" && rule["severity"]!="high" && rule["severity"]!="critical") throw std::runtime_error("invalid rule severity");
         for (auto it = rule.begin(); it != rule.end(); ++it) if (!fields.contains(it.key())) throw std::runtime_error("unknown rule field: " + it.key());
         if (rule.contains("sequence")) {
             if (!rule["sequence"].is_array() || rule["sequence"].size() != 2) throw std::runtime_error("sequence requires exactly two stages");
@@ -91,7 +93,9 @@ Process& Engine::ensure(const Event& e) {
         if (active_.contains(e.parent) && e.parent != e.pid) p.parent_id = active_.at(e.parent);
         active_[e.pid] = p.id; order_.push_back(p.id); processes_[p.id] = std::move(p);
     }
-    return processes_.at(active_.at(e.pid));
+    auto& result=processes_.at(active_.at(e.pid));
+    if (result.image=="[unobserved process]" && !e.process_image.empty()) result.image=e.process_image;
+    return result;
 }
 static bool terms(const Json& r, const char* key, const std::string& text, bool exact = false, bool all = false) {
     if (!r.contains(key)) return true;
@@ -113,7 +117,7 @@ bool Engine::matches(const Json& rule, const Event& e, const Process& p) const {
     std::string parent, target;
     if (processes_.contains(p.parent_id)) parent = basename(processes_.at(p.parent_id).image);
     if (active_.contains(e.target)) target = basename(processes_.at(active_.at(e.target)).image);
-    else target = basename(e.target_image);
+    if (target.empty() || target=="[unobserved process]") target = basename(e.target_image);
     if (!terms(rule,"image_names",basename(p.image),true) || !terms(rule,"parent_names",parent,true) ||
         !terms(rule,"target_names",target,true) || !terms(rule,"command_any",lower(e.command)) ||
         !terms(rule,"command_all",lower(e.command),false,true) || !terms(rule,"path_any",lower(e.image))) return false;

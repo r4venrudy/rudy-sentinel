@@ -7,6 +7,7 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
+#include <tlhelp32.h>
 #endif
 namespace rs {
 #ifdef _WIN32
@@ -35,10 +36,17 @@ static std::string utf8(const std::uint16_t* value, std::size_t capacity) {
 }
 static std::string process_path(std::uint32_t pid) {
     Handle handle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION,FALSE,pid));
-    if (!handle.value) return {};
     WCHAR buffer[32768]; DWORD chars = 32768;
-    if (!QueryFullProcessImageNameW(handle.value,0,buffer,&chars)) return {};
-    return utf8(reinterpret_cast<const std::uint16_t*>(buffer),chars);
+    if (handle.value && QueryFullProcessImageNameW(handle.value,0,buffer,&chars))
+        return utf8(reinterpret_cast<const std::uint16_t*>(buffer),chars);
+    /* Protected processes can deny a query handle; enumeration provides only a name. */
+    Handle snapshot(CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0));
+    if (snapshot.value==INVALID_HANDLE_VALUE) return {};
+    PROCESSENTRY32W entry{}; entry.dwSize=sizeof(entry);
+    if (Process32FirstW(snapshot.value,&entry)) do {
+        if (entry.th32ProcessID==pid) return utf8(reinterpret_cast<const std::uint16_t*>(entry.szExeFile),MAX_PATH);
+    } while (Process32NextW(snapshot.value,&entry));
+    return {};
 }
 void collect(std::atomic_bool& stop, const EventSink& sink, const HealthSink& health) {
     Handle device(CreateFileW(L"\\\\.\\RudySentinel",GENERIC_READ,0,nullptr,OPEN_EXISTING,0,nullptr));

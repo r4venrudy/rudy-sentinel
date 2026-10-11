@@ -4,7 +4,7 @@
 #define CHECK(x) do { if (!(x)) { fprintf(stderr,"queue check failed at line %d\n",__LINE__); return 1; } } while(0)
 int main(void) {
     RS_EVENT storage[7], event={0}, output;
-    RS_QUEUE q; unsigned i; uint64_t expected[7], head=0, count=0, produced=0, dropped=0;
+    RS_QUEUE q; unsigned i; RS_U64 expected[7], head=0, count=0, produced=0, dropped=0;
     CHECK(sizeof(RS_EVENT)==1592 && sizeof(RS_BATCH)==48 && sizeof(RS_REQUEST)==16);
     RsQueueInit(&q,storage,7); CHECK(!RsQueuePop(&q,&output));
     srand(41);

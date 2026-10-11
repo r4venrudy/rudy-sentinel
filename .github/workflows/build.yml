@@ -29,7 +29,7 @@ jobs:
         run: |
           build/native/Release/rudy-sentinel.exe --replay examples/demo.ndjson --out artifacts/demo --rules rules/default.json
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          & console/bin/Release/net10.0-windows/RudySentinel.Console.exe --data artifacts/demo --snapshot artifacts/console.png
+          dotnet console/bin/Release/net10.0-windows/RudySentinel.Console.dll --data artifacts/demo --snapshot artifacts/console.png
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if (!(Test-Path artifacts/console.png)) { throw 'Console render failed' }
       - uses: actions/upload-artifact@v4

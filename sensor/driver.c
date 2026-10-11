@@ -10,7 +10,7 @@ static UNICODE_STRING RsLinkName = RTL_CONSTANT_STRING(L"\\DosDevices\\RudySenti
 static RS_QUEUE RsQueue;
 static KSPIN_LOCK RsLock;
 static NPAGED_LOOKASIDE_LIST RsLookaside;
-static uint64_t RsAllocationFailures;
+static RS_U64 RsAllocationFailures;
 static PVOID RsObRegistration;
 static BOOLEAN RsProcessRegistered, RsImageRegistered, RsLinkCreated;
 
@@ -18,7 +18,7 @@ DRIVER_INITIALIZE DriverEntry;
 DRIVER_UNLOAD RsUnload;
 DRIVER_DISPATCH RsDispatch;
 
-static RS_EVENT* RsNewEvent(uint32_t type, HANDLE pid) {
+static RS_EVENT* RsNewEvent(RS_U32 type, HANDLE pid) {
     RS_EVENT* event = ExAllocateFromNPagedLookasideList(&RsLookaside);
     LARGE_INTEGER time;
     if (!event) {
@@ -31,11 +31,11 @@ static RS_EVENT* RsNewEvent(uint32_t type, HANDLE pid) {
     RtlZeroMemory(event, sizeof(*event));
     event->Size = sizeof(*event); event->Version = RS_VERSION;
     event->Type = type; event->ProcessId = HandleToULong(pid);
-    KeQuerySystemTimePrecise(&time); event->Time100ns = (uint64_t)time.QuadPart;
+    KeQuerySystemTimePrecise(&time); event->Time100ns = (RS_U64)time.QuadPart;
     return event;
 }
-static void RsCopyText(RS_EVENT* event, uint16_t* dest, uint32_t capacity,
-                       PCUNICODE_STRING source, uint32_t flag) {
+static void RsCopyText(RS_EVENT* event, RS_U16* dest, RS_U32 capacity,
+                       PCUNICODE_STRING source, RS_U32 flag) {
     SIZE_T chars;
     if (!source || !source->Buffer) return;
     chars = source->Length / sizeof(WCHAR);
