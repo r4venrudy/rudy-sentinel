@@ -83,6 +83,7 @@ static void service_state(DWORD state, DWORD error=NO_ERROR) {
     service_status.dwServiceType=SERVICE_WIN32_OWN_PROCESS; service_status.dwCurrentState=state;
     service_status.dwControlsAccepted=state==SERVICE_RUNNING?SERVICE_ACCEPT_STOP|SERVICE_ACCEPT_SHUTDOWN:0;
     service_status.dwWin32ExitCode=error; service_status.dwWaitHint=state==SERVICE_STOP_PENDING?10000:0;
+    service_status.dwServiceSpecificExitCode=error==ERROR_SERVICE_SPECIFIC_ERROR?1:0;
     SetServiceStatus(service_handle,&service_status);
 }
 static DWORD WINAPI control(DWORD code,DWORD,LPVOID,LPVOID) {

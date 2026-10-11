@@ -80,7 +80,10 @@ void collect(std::atomic_bool& stop, const EventSink& sink, const HealthSink& he
             e.time_ms=raw.Time100ns>=epoch ? (raw.Time100ns-epoch)/10000 : 0;
             e.pid=raw.ProcessId; e.parent=raw.ParentId; e.target=raw.TargetId; e.access=raw.AccessMask; e.flags=raw.Flags;
             e.image=utf8(raw.Image,RS_PATH_CHARS); e.command=utf8(raw.Command,RS_COMMAND_CHARS);
-            if (e.type=="process_start") paths[e.pid]=e.image;
+            if (e.type=="process_start") {
+                if (paths.size()>=20000) paths.clear();
+                paths[e.pid]=e.image;
+            }
             e.process_image=path(e.pid);
             if (e.type=="handle_request") e.target_image=path(e.target);
             sink(e);

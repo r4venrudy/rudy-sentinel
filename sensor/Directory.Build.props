@@ -1,0 +1,5 @@
+<Project>
+  <Import Project="$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.WDK.x64.10.0.26100.6584\build\native\Microsoft.Windows.WDK.x64.props" Condition="'$(Platform)' == 'x64' and Exists('$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.WDK.x64.10.0.26100.6584\build\native\Microsoft.Windows.WDK.x64.props')"/>
+  <Import Project="$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.SDK.CPP.x64.10.0.26100.6584\build\native\Microsoft.Windows.SDK.CPP.x64.props" Condition="'$(Platform)' == 'x64' and Exists('$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.SDK.CPP.x64.10.0.26100.6584\build\native\Microsoft.Windows.SDK.CPP.x64.props')"/>
+  <Import Project="$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.SDK.CPP.10.0.26100.6584\build\native\Microsoft.Windows.SDK.CPP.props" Condition="Exists('$(MSBuildThisFileDirectory)..\packages\Microsoft.Windows.SDK.CPP.10.0.26100.6584\build\native\Microsoft.Windows.SDK.CPP.props')"/>
+</Project>

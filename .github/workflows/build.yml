@@ -18,11 +18,14 @@ jobs:
       - name: Build C++ agent and C queue tests
         run: |
           cmake -S . -B build/native -A x64
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           cmake --build build/native --config Release --parallel
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           ctest --test-dir build/native -C Release --output-on-failure
       - name: Build C# console and test investigation model
         run: |
           dotnet build console/RudySentinel.Console.csproj -c Release
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet run --project tests/Console.Tests -c Release
       - name: Replay synthetic events and render real desktop console
         shell: pwsh
