@@ -1,0 +1,13 @@
+**
+!Dockerfile
+!CMakeLists.txt
+!agent/
+!agent/**
+!shared/
+!shared/**
+!tests/
+!tests/**
+!rules/
+!rules/**
+!examples/
+!examples/**
