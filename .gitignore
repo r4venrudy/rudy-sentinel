@@ -1,0 +1,12 @@
+build/
+artifacts/
+packages/
+run/
+bin/
+obj/
+*.user
+*.pdb
+*.sys
+*.cer
+*.pfx
+*.ndjson.1
