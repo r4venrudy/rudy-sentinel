@@ -122,6 +122,20 @@ ctest --test-dir build/native -C Release --output-on-failure
 
 GitHub Actions builds all three components, runs queue/engine/investigation tests, replays synthetic events, and renders the actual WPF console. Linux checks portable code with address/undefined-behavior sanitizers. See the current run for results. An unsigned `.sys` is a research build artifact.
 
+## GitHub package
+
+The Linux container packages the **C++ offline replay engine** and default rules. The Windows kernel driver and C# desktop console remain in the [Windows research release](https://github.com/r4venrudy/rudy-sentinel/releases/tag/v0.1.0-preview).
+
+```sh
+docker run --rm ghcr.io/r4venrudy/rudy-sentinel:latest --help
+docker run --rm --network none --tmpfs /data:rw,uid=10001,gid=10001 ghcr.io/r4venrudy/rudy-sentinel:latest --replay /opt/sentinel/examples/demo.ndjson --rules /opt/sentinel/rules/default.json --out /data/demo
+```
+
+The second example runs synthetic event replay without network access and stores temporary results in memory. To retain evidence, bind-mount a writable folder at `/data`; on Linux pass `--user "$(id -u):$(id -g)"` for a folder owned by your user.
+
+Every package build runs the C/C++ tests and an offline replay before publication. Images run as a non-root user and have `latest` and `sha-<full commit SHA>` tags. Live Windows monitoring is unavailable inside this Linux image.
+
+
 ## License
 
 [MIT](LICENSE). The build-time nlohmann/json dependency is also MIT licensed. Original project code and visuals are included here.
