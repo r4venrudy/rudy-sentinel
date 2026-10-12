@@ -1,4 +1,7 @@
 #include "collector.hpp"
+#ifdef RS_EVIDENCE
+#include "evidence.hpp"
+#endif
 #include <chrono>
 #include <csignal>
 #include <filesystem>
@@ -39,7 +42,7 @@ public:
         if (!stream_) throw std::runtime_error("Log write failed");
     }
 };
-struct Options { fs::path rules="rules/default.json", out="run", replay; bool live{}, service{}; };
+struct Options { fs::path rules="rules/default.json", out="run", replay, evidence_file; std::string scope; bool live{}, service{}; };
 static int run(const Options& o) {
     std::ifstream input(o.rules); if (!input) throw std::runtime_error("Cannot open rules");
     rs::Json rules; input >> rules; rs::Engine engine(std::move(rules));
@@ -121,12 +124,23 @@ int main(int argc,char** argv) {
         Options o;
         for(int i=1;i<argc;++i) {
             std::string a=argv[i];
-            if(a=="--help") { std::cout << "Rudy Sentinel 0.1.0\n--replay FILE | --live [--service] --rules FILE --out NEW_DIRECTORY\n"; return 0; }
+            if(a=="--help") { std::cout << "Rudy Sentinel 0.1.0\n--replay FILE | --live [--service] --rules FILE --out NEW_DIRECTORY\n--export-evidence ALERTS_NDJSON --scope HOST_SESSION_ID (requires RS_EVIDENCE build)\n"; return 0; }
             if(a=="--live") o.live=true;
             else if(a=="--service") o.service=true;
+            else if(a=="--scope" && i+1<argc) o.scope=argv[++i];
+            else if(a=="--export-evidence" && i+1<argc) o.evidence_file=fs::path(std::u8string(reinterpret_cast<const char8_t*>(argv[++i])));
             else if((a=="--rules" || a=="--out" || a=="--replay") && i+1<argc) { fs::path p(std::u8string(reinterpret_cast<const char8_t*>(argv[++i]))); if(a=="--rules") o.rules=p; else if(a=="--out") o.out=p; else o.replay=p; }
             else throw std::runtime_error("Unknown or incomplete argument: " + a);
         }
+        if(!o.evidence_file.empty()) {
+            if(o.live || o.service || !o.replay.empty()) throw std::runtime_error("Evidence export is an offline operation; choose it separately from collection/replay");
+#ifdef RS_EVIDENCE
+            std::cout << export_evidence(o.evidence_file,o.scope) << '\n'; return std::cout ? 0 : 1;
+#else
+            throw std::runtime_error("Rebuild with -DRS_EVIDENCE=ON and an installed Rudy Evidence SDK");
+#endif
+        }
+        if(!o.scope.empty()) throw std::runtime_error("--scope requires --export-evidence");
         if(o.live==!o.replay.empty() || (o.service&&!o.live)) throw std::runtime_error("Choose --live or --replay FILE; --service requires --live");
         std::signal(SIGINT,stop_signal); std::signal(SIGTERM,stop_signal);
 #ifdef _WIN32

@@ -64,6 +64,16 @@ ctest --test-dir build --output-on-failure
 ./build/rudy-sentinel --replay examples/demo.ndjson --rules rules/default.json --out run/demo
 ```
 
+### Shared evidence SDK (optional, offline)
+
+Install [Rudy Evidence](https://github.com/r4venrudy/rudy-evidence), then configure Sentinel with `-DRS_EVIDENCE=ON -DCMAKE_PREFIX_PATH=/absolute/sdk/install`. CMake links its C++20 core directly. Export an existing alert log without loading a driver or collecting new events:
+
+```sh
+./build/rudy-sentinel --export-evidence run/demo/alerts.ndjson --scope host:lab-01:boot-01:session-01 > sentinel.evidence.json
+```
+
+Use a unique host/boot/session scope to keep process-generation IDs from separate captures distinct. Export includes alert sequence, image, MITRE ID and the investigation disclaimer; raw commands/events and health records are omitted. Recognized secret fields/patterns are redacted by the SDK. The bundle digest checks consistency, not authenticity. Normal builds keep this integration disabled; enabling it adds an installed SDK dependency and a driver-free replay/export test.
+
 ### Build the kernel sensor
 
 Use Visual Studio 2022 with the C++ workload, MSBuild, and NuGet. This project pins the VS 2022-compatible SDK/WDK 10.0.26100.6584 packages.
