@@ -3,6 +3,22 @@ on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
 jobs:
+  native-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: r4venrudy/rudy-evidence
+          ref: b2e8e361a89ddfa44142bdb49c6ea540c0e209f9
+          path: .sdk
+      - run: cmake -S .sdk -B .sdk/build -DRE_BUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release
+      - run: cmake --build .sdk/build --parallel 2
+      - run: cmake --install .sdk/build --prefix .sdk/install
+      - run: cmake -S . -B build-evidence -DRS_EVIDENCE=ON -DCMAKE_PREFIX_PATH="$PWD/.sdk/install" -DCMAKE_BUILD_TYPE=Release
+      - run: cmake --build build-evidence --parallel 2
+      - run: ctest --test-dir build-evidence --output-on-failure
   windows:
     runs-on: windows-2022
     steps:
