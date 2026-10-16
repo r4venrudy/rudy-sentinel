@@ -116,7 +116,7 @@ The default ruleset:
 | RS-C01 | Office-launched encoded PowerShell chain | critical | T1059.001 |
 | RS-C02 | Encoded PowerShell followed by injection-capable handle request | critical | T1055 |
 
-Edit [rules/default.json](rules/default.json) and start a new session. Conditions are ANDed; terms within `*_any`, names, or paths are ORed. `command_all` requires every substring. `switch_any` matches complete command-line tokens. Sequence rules reference two earlier rule IDs in order within `window_ms`; distinct rules may match the same event.
+Edit [rules/default.json](rules/default.json), check it with `rudy-sentinel --check-rules --rules rules/default.json`, and start a new session. Conditions are ANDed; terms within `*_any`, names, or paths are ORed. `command_all` requires every substring. `switch_any` matches complete command-line tokens. Sequence rules reference two earlier rule IDs in order within `window_ms`; distinct rules may match the same event.
 
 ```json
 {

@@ -42,7 +42,7 @@ public:
         if (!stream_) throw std::runtime_error("Log write failed");
     }
 };
-struct Options { fs::path rules="rules/default.json", out="run", replay, evidence_file; std::string scope; bool live{}, service{}; };
+struct Options { fs::path rules="rules/default.json", out="run", replay, evidence_file; std::string scope; bool live{}, service{}, check{}; };
 static int run(const Options& o) {
     std::ifstream input(o.rules); if (!input) throw std::runtime_error("Cannot open rules");
     rs::Json rules; input >> rules; rs::Engine engine(std::move(rules));
@@ -124,13 +124,24 @@ int main(int argc,char** argv) {
         Options o;
         for(int i=1;i<argc;++i) {
             std::string a=argv[i];
-            if(a=="--help") { std::cout << "Rudy Sentinel 0.1.0\n--replay FILE | --live [--service] --rules FILE --out NEW_DIRECTORY\n--export-evidence ALERTS_NDJSON --scope HOST_SESSION_ID (requires RS_EVIDENCE build)\n"; return 0; }
-            if(a=="--live") o.live=true;
+            if(a=="--help") { std::cout << "Rudy Sentinel 0.1.0\n--replay FILE | --live [--service] --rules FILE --out NEW_DIRECTORY\n--export-evidence ALERTS_NDJSON --scope HOST_SESSION_ID (requires RS_EVIDENCE build)\n--check-rules [--rules FILE]\n"; return 0; }
+            if(a=="--check-rules") o.check=true;
+            else if(a=="--live") o.live=true;
             else if(a=="--service") o.service=true;
             else if(a=="--scope" && i+1<argc) o.scope=argv[++i];
             else if(a=="--export-evidence" && i+1<argc) o.evidence_file=fs::path(std::u8string(reinterpret_cast<const char8_t*>(argv[++i])));
             else if((a=="--rules" || a=="--out" || a=="--replay") && i+1<argc) { fs::path p(std::u8string(reinterpret_cast<const char8_t*>(argv[++i]))); if(a=="--rules") o.rules=p; else if(a=="--out") o.out=p; else o.replay=p; }
             else throw std::runtime_error("Unknown or incomplete argument: " + a);
+        }
+        if(o.check) {
+            // validate an edited ruleset before starting a live session with it
+            if(o.live || o.service || !o.replay.empty() || !o.evidence_file.empty() || !o.scope.empty())
+                throw std::runtime_error("--check-rules only takes --rules");
+            std::ifstream input(o.rules); if (!input) throw std::runtime_error("Cannot open rules");
+            rs::Json rules; input >> rules; auto count = rules.value("rules", rs::Json::array()).size();
+            rs::Engine engine(std::move(rules));
+            std::cout << "Rules valid: " << count << " rules in " << o.rules.string() << '\n';
+            return 0;
         }
         if(!o.evidence_file.empty()) {
             if(o.live || o.service || !o.replay.empty()) throw std::runtime_error("Evidence export is an offline operation; choose it separately from collection/replay");
