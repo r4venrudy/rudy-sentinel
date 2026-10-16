@@ -25,7 +25,7 @@ The sensor uses documented Windows callbacks to observe process creation and exi
 | Component | Implementation | What it does |
 |---|---|---|
 | Kernel sensor | C / WDM | Process lifecycle, image-load notifications, sensitive process handle create/duplicate request audit |
-| Detection agent | C++20 | Windows service, 12 declarative rules, two-stage correlation, risk scoring, replay |
+| Detection agent | C++20 | Windows service, 14 declarative rules, two-stage correlation, risk scoring, replay |
 | Investigation console | C# / WPF | Severity/text filters, process tree, raw evidence, health, local JSON case export |
 
 - **Behavioral signals:** Office-launched interpreters, encoded PowerShell, remote MSHTA, Rundll32 script patterns, Certutil transfers, scheduled tasks, shadow-copy deletion, LSASS read-access requests, injection-capable handles, and DLL loads from selected user-writable paths.

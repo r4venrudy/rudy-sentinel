@@ -12,6 +12,8 @@
     {"id":"RS-008","title":"Process requested memory-read access to LSASS","event":"handle_request","target_names":["lsass.exe"],"access_all":16,"severity":"high","score":60,"mitre":"T1003.001"},
     {"id":"RS-009","title":"Cross-process injection-capable handle requested","event":"handle_request","access_all":42,"severity":"medium","score":35,"mitre":"T1055"},
     {"id":"RS-010","title":"Sensitive system process loaded a DLL from a user-writable path","event":"image_load","image_names":["rundll32.exe","svchost.exe","services.exe"],"path_any":["\\appdata\\","\\users\\public\\","\\windows\\temp\\"],"severity":"medium","score":35,"mitre":"T1574.002"},
+    {"id":"RS-011","title":"MSHTA runs inline script","event":"process_start","image_names":["mshta.exe"],"command_any":["javascript:","vbscript:"],"severity":"high","score":45,"mitre":"T1218.005"},
+    {"id":"RS-012","title":"Regsvr32 scriptlet registration from a URL","event":"process_start","image_names":["regsvr32.exe"],"command_all":["/i:http","scrobj.dll"],"severity":"high","score":50,"mitre":"T1218.010"},
     {"id":"RS-C01","title":"Office-launched encoded PowerShell chain","sequence":["RS-001","RS-002"],"severity":"critical","score":30,"mitre":"T1059.001"},
     {"id":"RS-C02","title":"Encoded PowerShell followed by injection-capable handle request","sequence":["RS-002","RS-009"],"severity":"critical","score":35,"mitre":"T1055"}
   ]
