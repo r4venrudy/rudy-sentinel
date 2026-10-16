@@ -97,6 +97,25 @@ The optional [installation script](scripts/Install-Lab.ps1) registers demand-sta
 
 ## Detection rules
 
+The default ruleset:
+
+| ID | Signal | Severity | MITRE ATT&CK |
+| :--- | :--- | :--- | :--- |
+| RS-001 | Office application spawned a script interpreter | high | T1204.002 |
+| RS-002 | PowerShell encoded command | medium | T1059.001 |
+| RS-003 | MSHTA command references a remote URL | high | T1218.005 |
+| RS-004 | Rundll32 script execution pattern | high | T1218.011 |
+| RS-005 | Certutil URL-cache transfer pattern | medium | T1105 |
+| RS-006 | Scheduled task creation | medium | T1053.005 |
+| RS-007 | Shadow-copy deletion command | high | T1490 |
+| RS-008 | Process requested memory-read access to LSASS | high | T1003.001 |
+| RS-009 | Cross-process injection-capable handle requested | medium | T1055 |
+| RS-010 | Sensitive system process loaded a DLL from a user-writable path | medium | T1574.002 |
+| RS-011 | MSHTA runs inline script | high | T1218.005 |
+| RS-012 | Regsvr32 scriptlet registration from a URL | high | T1218.010 |
+| RS-C01 | Office-launched encoded PowerShell chain | critical | T1059.001 |
+| RS-C02 | Encoded PowerShell followed by injection-capable handle request | critical | T1055 |
+
 Edit [rules/default.json](rules/default.json) and start a new session. Conditions are ANDed; terms within `*_any`, names, or paths are ORed. `command_all` requires every substring. `switch_any` matches complete command-line tokens. Sequence rules reference two earlier rule IDs in order within `window_ms`; distinct rules may match the same event.
 
 ```json
