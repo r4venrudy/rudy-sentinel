@@ -3,10 +3,10 @@
   "window_ms": 120000,
   "rules": [
     {"id":"RS-001","title":"Office application spawned a script interpreter","event":"process_start","parent_names":["winword.exe","excel.exe","powerpnt.exe","outlook.exe"],"image_names":["powershell.exe","pwsh.exe","cmd.exe","wscript.exe","cscript.exe","mshta.exe"],"severity":"high","score":40,"mitre":"T1204.002"},
-    {"id":"RS-002","title":"PowerShell encoded command","event":"process_start","image_names":["powershell.exe","pwsh.exe"],"switch_any":["-enc","-encodedcommand","-e"],"severity":"medium","score":30,"mitre":"T1059.001"},
+    {"id":"RS-002","title":"PowerShell encoded command","event":"process_start","image_names":["powershell.exe","pwsh.exe"],"switch_any":["-e","-ec","-en","-enc","-enco","-encod","-encode","-encoded","-encodedcommand","/e","/ec","/enc","/encodedcommand"],"severity":"medium","score":30,"mitre":"T1059.001"},
     {"id":"RS-003","title":"MSHTA command references a remote URL","event":"process_start","image_names":["mshta.exe"],"command_any":["https://","http://"],"severity":"high","score":45,"mitre":"T1218.005"},
     {"id":"RS-004","title":"Rundll32 script execution pattern","event":"process_start","image_names":["rundll32.exe"],"command_any":["javascript:","vbscript:"],"severity":"high","score":50,"mitre":"T1218.011"},
-    {"id":"RS-005","title":"Certutil URL-cache transfer pattern","event":"process_start","image_names":["certutil.exe"],"switch_any":["-urlcache"],"command_any":["http://","https://"],"severity":"medium","score":25,"mitre":"T1105"},
+    {"id":"RS-005","title":"Certutil URL-cache transfer pattern","event":"process_start","image_names":["certutil.exe"],"switch_any":["-urlcache","/urlcache"],"command_any":["http://","https://"],"severity":"medium","score":25,"mitre":"T1105"},
     {"id":"RS-006","title":"Scheduled task creation","event":"process_start","image_names":["schtasks.exe"],"switch_any":["/create"],"severity":"medium","score":20,"mitre":"T1053.005"},
     {"id":"RS-007","title":"Shadow-copy deletion command","event":"process_start","image_names":["vssadmin.exe"],"command_all":["delete","shadows"],"severity":"high","score":70,"mitre":"T1490"},
     {"id":"RS-008","title":"Process requested memory-read access to LSASS","event":"handle_request","target_names":["lsass.exe"],"access_all":16,"severity":"high","score":60,"mitre":"T1003.001"},

