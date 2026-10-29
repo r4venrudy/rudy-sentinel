@@ -20,6 +20,7 @@ jobs:
       - run: cmake --build build-evidence --parallel 2
       - run: ctest --test-dir build-evidence --output-on-failure
   windows:
+    timeout-minutes: 30
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -61,6 +62,7 @@ jobs:
             artifacts/demo/
             artifacts/console.png
   portable-tests:
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
