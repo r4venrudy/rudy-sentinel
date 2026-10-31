@@ -61,7 +61,7 @@ jobs:
           dotnet console/bin/Release/net10.0-windows/RudySentinel.Console.dll --data artifacts/demo --snapshot artifacts/console.png
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if (!(Test-Path artifacts/console.png)) { throw 'Console render failed' }
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: windows-research-build
           path: |
